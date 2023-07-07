@@ -2,6 +2,16 @@
 
 **`react-validation-strategy`** is a library that provides a clean, modular, and reusable way to manage state and validation in your React applications. It simplifies form handling, abstracts away validation logic, and promotes separation of concerns, all while providing enhanced type safety with TypeScript.
 
+Planned Changes:
+	- optional: makes it so that a field is not required for a successful validation call.
+	- noValidate: Does not automatically validate when state is changed
+	- parse: Enables support for custom validators to parse the state.
+	- validateProperty: allows you to pass the validation logic to another function
+	- submit: checks to see if all validation states are passing, executes submit call.
+	- messages: Display validation messages if a validation fails
+	- createStateSlice: Create the data types needed for managing the reducer object created from a validation input
+	- validate: Configures the validation types for a state slice
+
 
 ### Table of Contents  
 - [Installation](#installation)
