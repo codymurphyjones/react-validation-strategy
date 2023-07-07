@@ -77,7 +77,7 @@ const UserValidation = Validation.createValidationSlice({
   lastName: Validation.new("").length(2, 20),
   email: Validation.new("").match(emailRegex),
   password: Validation.new("").length(8).match(/[\@\#\$\%\^\&\*\(\)\_\+\!]/),
-  confirmPassword: Validation.new("").custom((val, state: { password: string }) => val === state.password),
+  age: Validation.new(0).custom((val) => val > 18).blocking(),
 });
 
 export default function UserForm() {
@@ -102,10 +102,10 @@ export default function UserForm() {
         onChange={eventChange((val) => updateProperties("password", val))}
       />
       <input
-        value={getProperty("confirmPassword")}
-        onChange={eventChange((val) => updateProperties("confirmPassword", val))}
+        value={getProperty("age")}
+        onChange={eventChange((val) => updateProperties("age", val))}
       />
-      <button type="submit" disabled={!isPropertyValid("firstName") || !isPropertyValid("lastName") || !isPropertyValid("email") || !isPropertyValid("password") || !isPropertyValid("confirmPassword")}>
+      <button type="submit" disabled={!isPropertyValid("firstName") || !isPropertyValid("lastName") || !isPropertyValid("email") || !isPropertyValid("password") || !isPropertyValid("age")}>
         Submit
       </button>
     </form>
