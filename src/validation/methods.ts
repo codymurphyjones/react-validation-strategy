@@ -4,11 +4,11 @@ type ValidationMethods = "length" | "includes" | "match" | "custom";
 type ValidationMethod<Key> = Extract<ValidationMethods, Key>;
 
 
-export type ValidationStrategy<T = string, State extends object = object> =
+export type ValidationStrategy<T = string> =
   | LengthValidation
   | IncludesValidation
   | MatchValidation
-  | CustomValidation<T, State>;
+  | CustomValidation<T>;
 
 export type LengthValidation =
   | {
@@ -26,13 +26,8 @@ export type LengthValidation =
       invert?: boolean;
 };
 
-function logReturn(name: string, val: boolean) {
-  console.log(name, val)
-  return val;
-}
-
-export function isLengthValidation(strategy: ValidationStrategy): strategy is LengthValidation {
-        return logReturn('isLengthValidation', strategy.method === "length")
+export function isLengthValidation<T>(strategy: ValidationStrategy<T>): strategy is LengthValidation {
+        return strategy.method === "length"
 }
 
 export type IncludesValidation = {
@@ -42,20 +37,20 @@ export type IncludesValidation = {
   invert?: boolean;
 };
 
-export function isIncludesValidation(strategy: ValidationStrategy): strategy is IncludesValidation {
-  return logReturn('isIncludesValidation', strategy.method === "includes" )
+export function isIncludesValidation<T>(strategy: ValidationStrategy<T>): strategy is IncludesValidation {
+  return strategy.method === "includes" 
 }
 
 
-export type CustomValidation<T = string, State extends object = object> = {
+export type CustomValidation<T = string> = {
   method: ValidationMethod<"custom">; 
-  custom: (val: T, state: State) => boolean;
+  custom: (val: T) => boolean;
   blocking?: boolean;
   invert?: boolean;
 };
 
-export function isCustomValidation(strategy: ValidationStrategy): strategy is CustomValidation {
-  return logReturn('isCustomValidation', "custom" in strategy && strategy.method === "custom"  )
+export function isCustomValidation<T>(strategy: ValidationStrategy<T>): strategy is CustomValidation<T> {
+  return "custom" in strategy && strategy.method === "custom" 
 }
 
 export type MatchValidation = {
@@ -65,7 +60,7 @@ export type MatchValidation = {
   invert?: boolean;
 };
 
-export function isMatchValidation(strategy: ValidationStrategy): strategy is MatchValidation {
-  return logReturn('isMatchValidation', "expression" in strategy && strategy.method === "match"  )
+export function isMatchValidation<T>(strategy: ValidationStrategy<T>): strategy is MatchValidation {
+  return "expression" in strategy && strategy.method === "match" 
 }
 

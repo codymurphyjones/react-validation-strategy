@@ -51,12 +51,12 @@ export class Validator<T = unknown> {
     });
   }
 
-  // custom<State extends object >(func: (val: T, state: State) => boolean): Validator<T> {
-  //   return this.addToQueue({
-  //     method: "custom",
-  //     custom: func,
-  //   });
-  // }
+  custom(func: (val: T) => boolean): Validator<T> {
+    return this.addToQueue({
+      method: "custom",
+      custom: func,
+    });
+  }
 
   private addToQueue(validationStrategy: ValidationStrategy<T>) {
     this.ValidationQueue.push(validationStrategy);
