@@ -63,4 +63,3 @@ export type MatchValidation = {
 export function isMatchValidation<T>(strategy: ValidationStrategy<T>): strategy is MatchValidation {
   return "expression" in strategy && strategy.method === "match" 
 }
-
