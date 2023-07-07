@@ -1,4 +1,5 @@
 import { type Validator } from "./";
+import { ValidationStrategy } from "./methods";
 
 export type ValidationNode<T> = {
   value: T;
@@ -19,4 +20,8 @@ export type InferValidatorType<V> = V extends Validator<infer T> ? T : never;
 
 export type ValidationTechnique<Root> = {
   [P in keyof ValidationSource<Root>]: ((val: ValidationSource<Root>[P] extends Validator<infer T> ? T : never) => boolean)[];
+};
+
+export type ValidationStrategies<Root> = {
+  [P in keyof ValidationSource<Root>]: ValidationStrategy<ValidationSource<Root>[P] extends Validator<infer T> ? T : never>[];
 };

@@ -1,11 +1,13 @@
-import { isNumeric } from "./numbers";
+import { isNumeric } from "../numbers";
 import {
   type LengthValidation,
   type ValidationStrategy,
   isLengthValidation,
   isIncludesValidation,
   type IncludesValidation,
-} from "./validation/methods";
+  isMatchValidation,
+  MatchValidation,
+} from "./methods";
 
 function prepareForValidation<T = unknown>(
   val: T,
@@ -34,14 +36,10 @@ function prepareForValidation<T = unknown>(
 function performLengthValidation<T>(validationStrategy: ValidationStrategy) {
   return (val: T) => {
     if (isLengthValidation(validationStrategy)) {
-      console.log("we made it here");
       //happy path Number, Array, Object, String
       //convert to array based data set (string, arrays, or keys)
+      const invert = validationStrategy.invert ?? false;
       const result = prepareForValidation(val, (inputData) => {
-        validationStrategy = validationStrategy as LengthValidation;
-
-        console.log('validation', validationStrategy)
-        console.log('input', inputData)
         try {
           const len = inputData?.length;
 
@@ -64,7 +62,7 @@ function performLengthValidation<T>(validationStrategy: ValidationStrategy) {
 
         return true;
       });
-      return result;
+      return invert ? !result : result;
     }
     return false;
   };
@@ -72,29 +70,50 @@ function performLengthValidation<T>(validationStrategy: ValidationStrategy) {
 
 function performsIncludeValidation<T>(validationStrategy: ValidationStrategy) {
   return (val: T) => {
-    console.log('its me the includes validation call')
     if (isIncludesValidation(validationStrategy)) {
-      console.log('includesStrategy', validationStrategy);
       //happy path Number, Array, Object, String
       //convert to array based data set (string, arrays, or keys)
+      const invert = validationStrategy.invert ?? false;
       const result = prepareForValidation(val, (inputData) => {
          try {
-          validationStrategy = validationStrategy as IncludesValidation;
           if (typeof inputData === "string") {
             return inputData.includes(validationStrategy.text ?? "");
           }
         } catch (e) {
-          console.log(e);
         }
-
         return false;
       });
-      return result;
+      return invert ? !result : result;
     }
-    console.log('invalidInclude')
     return false;
   };
 }
+
+function performsMatchValidation<T>(validationStrategy: ValidationStrategy) {
+  return (val: T) => {
+    if (isMatchValidation(validationStrategy)) {
+      //happy path Number, Array, Object, String
+      //convert to array based data set (string, arrays, or keys)
+      const invert = validationStrategy.invert ?? false;
+      const expression = validationStrategy.expression;
+      const result = prepareForValidation(val, (inputData) => {
+         try {
+          
+          if (typeof inputData === "string") {
+            return expression.test(inputData);
+          } else if(isNumeric(inputData)) {
+            return expression.test(inputData.toString());
+          }
+        } catch (e) {
+        }
+        return false;
+      });
+      return invert ? !result : result;
+    }
+    return false;
+  };
+}
+
 
 export function validationListToFunctions<U>(
   validationList: ValidationStrategy<U>[]
@@ -106,14 +125,8 @@ export function validationListToFunctions<U>(
         return performLengthValidation<U>(validationStrategy);
       case "includes":
         return performsIncludeValidation<U>(validationStrategy);
-      /*case 'not':
-                return (val) => {
-                    return !val.includes(ValidationStrategy.text);
-                }*/
-      case "blocking":
-        return () => {
-          return false;
-        };
+      case "match":
+        return performsMatchValidation<U>(validationStrategy);
       default:
         return () => {
           return true;

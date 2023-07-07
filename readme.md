@@ -77,7 +77,7 @@ const UserValidation = Validation.createValidationSlice({
   lastName: Validation.new("").length(2, 20),
   email: Validation.new("").match(emailRegex),
   password: Validation.new("").length(8).match(/[\@\#\$\%\^\&\*\(\)\_\+\!]/),
-  confirmPassword: Validation.new("").custom((val, state) => val === state.password),
+  confirmPassword: Validation.new("").custom((val, state: { password: string }) => val === state.password),
 });
 
 export default function UserForm() {

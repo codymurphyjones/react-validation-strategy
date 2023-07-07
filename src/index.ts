@@ -13,26 +13,6 @@ export function eventChange(update: (val: string) => void) {
     update(event.currentTarget.value);
 }
 
-export function useValidationT<T>(
-  defaultFormState: ValidationSource<T>
-): [
-  state: ValidationData<T>,
-  update: (action: Partial<ValidationUpdate<T>>) => void
-] {
-  const validationStructure =
-    ConvertDefaultStateToValidationStructure(defaultFormState);
-
-  const [state, dispatch] = useReducer(
-    makeReducer(validationStructure),
-    validationStructure[0]
-  ) as [ValidationData<T>, React.Dispatch<Partial<ValidationUpdate<T>>>];
-
-  function update(action: Partial<ValidationUpdate<T>>) {
-    dispatch(action);
-  }
-  return [state, update];
-}
-
 export function useValidation<T>(
   defaultFormState: ValidationSource<T>
 ): [

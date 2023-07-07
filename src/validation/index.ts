@@ -22,20 +22,18 @@ export class Validator<T = unknown> {
   }
 
   length(min: number, max?: number): Validator<T> {
-    this.ValidationQueue.push({
+    return this.addToQueue({
       method: "length",
       min,
       max,
     });
-    return this;
   }
 
   includes(val: T): Validator<T> {
-    this.ValidationQueue.push({
+    return this.addToQueue({
       method: "includes",
-      text: val as string
+      text: val as string,
     });
-    return this;
   }
 
   getDefaultValue(): T {
@@ -54,19 +52,30 @@ export class Validator<T = unknown> {
     return this;
   }
 
-  /*
-        includes(val: T) {
-            return this;
-        }
+  private addToQueue(validationStrategy: ValidationStrategy<T>) {
+    this.ValidationQueue.push(validationStrategy);
+    return this;
+  }
 
-        not() {
-            return this;
-        }
+  private getQueueItem() {
+    return this.ValidationQueue[this.ValidationQueue.length - 1];
+  }
 
-        blocking() {`
-            return this;
-        }
-    */
+  not() {
+    const queueItem = this.getQueueItem()
+    if(!queueItem) throw new Error("Unable to use not() without a validation method");
+
+    queueItem.invert = true;
+    return this;
+  }
+
+  blocking() {
+    const queueItem = this.getQueueItem()
+    if(!queueItem) throw new Error("Unable to  use blocking() without a validation method");
+
+    queueItem.blocking = true;
+    return this;
+  }
 }
 
 /*
