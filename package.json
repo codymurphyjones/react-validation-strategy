@@ -1,6 +1,6 @@
 {
   "name": "react-validation-strategy",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "An efficient and declarative React hook for form validation and state management, offering modular, reusable validation logic, cleaner component code, and enhanced type safety",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -8,7 +8,8 @@
     "/dist"
   ],
   "scripts": {
-    "dist": "tsc"
+    "dist": "npm run build && npm publish",
+	"build": "tsc"
   },
   "keywords": [
   "react",
@@ -32,7 +33,11 @@
   "validation rules",
   "validation context"
 ],
-  "author": "",
+  "bugs" {
+	  "url": "https://github.com/codymurphyjones/react-validation-strategy/issues"
+  },
+  "homepage": "https://github.com/codymurphyjones/react-validation-strategy"
+  "author": "Cody Jones <codymurphyjones@gmail.com> (https://github.com/codymurphyjones)",
   "license": "ISC",
   "devDependencies": {
     "@types/react": "^18.2.14",
