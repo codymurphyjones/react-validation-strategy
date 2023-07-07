@@ -1,12 +1,10 @@
 import { isNumeric } from "../numbers";
 import {
-  type LengthValidation,
   type ValidationStrategy,
   isLengthValidation,
   isIncludesValidation,
-  type IncludesValidation,
   isMatchValidation,
-  MatchValidation,
+  isCustomValidation,
 } from "./methods";
 
 function prepareForValidation<T = unknown>(
@@ -55,7 +53,6 @@ function performLengthValidation<T>(validationStrategy: ValidationStrategy) {
             len > validationStrategy?.max
           )
             return false;
-
         } catch (e) {
           return false;
         }
@@ -75,12 +72,11 @@ function performsIncludeValidation<T>(validationStrategy: ValidationStrategy) {
       //convert to array based data set (string, arrays, or keys)
       const invert = validationStrategy.invert ?? false;
       const result = prepareForValidation(val, (inputData) => {
-         try {
+        try {
           if (typeof inputData === "string") {
             return inputData.includes(validationStrategy.text ?? "");
           }
-        } catch (e) {
-        }
+        } catch (e) {}
         return false;
       });
       return invert ? !result : result;
@@ -91,35 +87,65 @@ function performsIncludeValidation<T>(validationStrategy: ValidationStrategy) {
 
 function performsMatchValidation<T>(validationStrategy: ValidationStrategy) {
   return (val: T) => {
+    console.log("validationStrategy", validationStrategy);
     if (isMatchValidation(validationStrategy)) {
       //happy path Number, Array, Object, String
       //convert to array based data set (string, arrays, or keys)
       const invert = validationStrategy.invert ?? false;
       const expression = validationStrategy.expression;
       const result = prepareForValidation(val, (inputData) => {
-         try {
-          
+        try {
           if (typeof inputData === "string") {
+            console.log("string");
+            console.log("inputData", inputData);
+            console.log("expression", expression);
+            console.log(expression.test(inputData));
             return expression.test(inputData);
-          } else if(isNumeric(inputData)) {
+          } else if (isNumeric(inputData)) {
+            console.log("number");
             return expression.test(inputData.toString());
           }
-        } catch (e) {
-        }
+        } catch (e) {}
         return false;
       });
+      console.log("result", result);
       return invert ? !result : result;
     }
     return false;
   };
 }
 
+function performsCustomValidation<T>(validationStrategy: ValidationStrategy) {
+  return (val: T) => {
+    console.log("validationStrategy", validationStrategy);
+    if (isCustomValidation(validationStrategy)) {
+      //happy path Number, Array, Object, String
+      //convert to array based data set (string, arrays, or keys)
+      const invert = validationStrategy.invert ?? false;
+      const customFunc = validationStrategy.custom;
+      const result = prepareForValidation(val, (inputData) => {
+        try {
+          if (typeof inputData === "string") {
+           return customFunc(inputData, {});
+          } else {
+            return false;
+          }
+          
+        } catch (e) {}
+        return false;
+      });
+      console.log("result", result);
+      return invert ? !result : result;
+    }
+    return false;
+  };
+}
 
 export function validationListToFunctions<U>(
   validationList: ValidationStrategy<U>[]
 ): ((val: U) => boolean)[] {
   return validationList.map((validationStrategy) => {
-    console.log('validationStrategy', validationStrategy)
+    //console.log('validationStrategy', validationStrategy)
     switch (validationStrategy.method) {
       case "length":
         return performLengthValidation<U>(validationStrategy);
@@ -127,9 +153,11 @@ export function validationListToFunctions<U>(
         return performsIncludeValidation<U>(validationStrategy);
       case "match":
         return performsMatchValidation<U>(validationStrategy);
+      // case "custom":
+      //   return performsCustomValidation<U>(validationStrategy);
       default:
         return () => {
-          return true;
+          return false;
         };
     }
   });

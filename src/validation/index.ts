@@ -45,12 +45,18 @@ export class Validator<T = unknown> {
   }
 
   match(regex: RegExp): Validator<T> {
-    return this;
+    return this.addToQueue({
+      method: "match",
+      expression: regex,
+    });
   }
 
-  custom<K>(func: (val: T, state: K) => boolean): Validator<T> {
-    return this;
-  }
+  // custom<State extends object >(func: (val: T, state: State) => boolean): Validator<T> {
+  //   return this.addToQueue({
+  //     method: "custom",
+  //     custom: func,
+  //   });
+  // }
 
   private addToQueue(validationStrategy: ValidationStrategy<T>) {
     this.ValidationQueue.push(validationStrategy);
@@ -77,13 +83,3 @@ export class Validator<T = unknown> {
     return this;
   }
 }
-
-/*
-const AccountValidation: ValidationConfig = {
-  username: Validator.new("").length(5),
-  password: Validator.new("")
-    .length(5)
-    .match(/%|#|$|@|!|\*|/) 
-    confirmPassword: Validator.new('').custom((val, state: DeriveStateFrom<typeof AccountValidation>) => val === state.password),
-};
-*/

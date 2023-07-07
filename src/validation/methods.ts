@@ -1,18 +1,14 @@
 import type { Validator } from ".";
 
-type GeneralStateType = {
-  [key: string]: Validator<unknown>;
-};
-
 type ValidationMethods = "length" | "includes" | "match" | "custom";
 type ValidationMethod<Key> = Extract<ValidationMethods, Key>;
 
 
-export type ValidationStrategy<T = string, K = GeneralStateType> =
+export type ValidationStrategy<T = string, State extends object = object> =
   | LengthValidation
   | IncludesValidation
   | MatchValidation
-  | CustomValidation<T, K>;
+  | CustomValidation<T, State>;
 
 export type LengthValidation =
   | {
@@ -51,9 +47,9 @@ export function isIncludesValidation(strategy: ValidationStrategy): strategy is 
 }
 
 
-export type CustomValidation<T = string, K = GeneralStateType> = {
+export type CustomValidation<T = string, State extends object = object> = {
   method: ValidationMethod<"custom">; 
-  custom: (val: T, state: K) => boolean;
+  custom: (val: T, state: State) => boolean;
   blocking?: boolean;
   invert?: boolean;
 };
