@@ -13,6 +13,21 @@ export function eventChange(update: (val: string) => void) {
     update(event.currentTarget.value);
 }
 
+function checkStrictValidation(val: unknown) {{
+  if(typeof val === 'string') {
+    console.log('string', val)
+    return val.length > 0;
+  } else if(typeof val === 'number') {
+    console.log('number', val)
+    return val > 0;
+  } else if(Array.isArray(val)) {
+    console.log('array', val)
+    return val.length > 0;
+  }
+  return false;
+}}
+
+
 export function useValidation<T>(
   defaultFormState: ValidationSource<T>
 ): [
@@ -23,7 +38,7 @@ export function useValidation<T>(
     key: K,
     val: InferValidatorType<ValidationSource<T>[K]>
   ) => void,
-  <K extends keyof ValidationSource<T>>(key: K) => boolean
+  <K extends keyof ValidationSource<T>>(key: K,strict?: boolean) => boolean
 ] {
   const validationStructure =
     ConvertDefaultStateToValidationStructure(defaultFormState);
@@ -37,7 +52,7 @@ export function useValidation<T>(
     key: K,
     val: InferValidatorType<ValidationSource<T>[K]>
   ) {
-    const action: Partial<ValidationUpdate<T>> = {}
+    const action: Partial<ValidationUpdate<T>> = {};
     action[key] = val;
     dispatch(action);
   }
@@ -49,9 +64,10 @@ export function useValidation<T>(
   }
 
   function isPropertyValid<K extends keyof ValidationSource<T>>(
-    key: K
+    key: K,
+    strict = true
   ): boolean {
-    return state[key].valid;
+    return !strict ? checkStrictValidation(state[key].value) : state[key].valid;
   }
 
   return [getProperty, update, isPropertyValid];
