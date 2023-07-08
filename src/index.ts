@@ -79,11 +79,12 @@ export function useValidation<T>(defaultFormState: ValidationSource<T>): [
     dispatch(action);
   }
 
-  function watch<K extends keyof ValidationSource<T>>(
-    key: K
-  ): InferValidatorType<ValidationSource<T>[K]> {
-    return state[key].value as InferValidatorType<ValidationSource<T>[K]>;
-  }
+
+  function watch<K extends keyof ValidationSource<T>>(key: K) {
+    const valNode = state[key];
+    const val = valNode.value;
+    return val as InferValidatorType<ValidationSource<T>[K]>;
+}
 
   function isValid<K extends keyof ValidationSource<T>>(
     key: K,
