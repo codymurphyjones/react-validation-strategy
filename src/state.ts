@@ -1,4 +1,3 @@
-import type { Validator } from "./validation";
 import type { ValidationStrategy } from "./validation/methods";
 import type {
   ValidationSource,

@@ -23,25 +23,42 @@ function performLengthValidation<T>(validationStrategy: ValidationStrategy<T>) {
       }
 
       const invert = validationStrategy.invert ?? false;
-      let result = true;
       try {
-        if (
-          validationStrategy?.min != undefined &&
-          valLength < validationStrategy?.min
-        ) {
-          return false;
-        }
+        if (invert) {
+          if (
+            validationStrategy?.min != undefined &&
+            valLength < validationStrategy?.min
+          ) {
+            return true;
+          }
 
-        if (
-          validationStrategy?.max != undefined &&
-          valLength > validationStrategy?.max
-        )
+          if (
+            validationStrategy?.max != undefined &&
+            valLength > validationStrategy?.max
+          ) {
+            return true;
+          }
+
           return false;
+        } else {
+          if (
+            validationStrategy?.min != undefined &&
+            valLength < validationStrategy?.min
+          ) {
+            return false;
+          }
+
+          if (
+            validationStrategy?.max != undefined &&
+            valLength > validationStrategy?.max
+          )
+            return false;
+        }
       } catch (e) {
         return false;
       }
 
-      return invert ? !result : result;
+      return true;
     }
     return false;
   };
@@ -74,7 +91,7 @@ function performsMatchValidation<T>(validationStrategy: ValidationStrategy<T>) {
       //convert to array based data set (string, arrays, or keys)
       const invert = validationStrategy.invert ?? false;
       const expression = validationStrategy.expression;
-      
+
       let result = false;
       if (isNumeric(val)) {
         const valAsNumber = val as number;
