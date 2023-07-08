@@ -63,13 +63,18 @@ export function useValidation<T>(
     return state[key].value as InferValidatorType<ValidationSource<T>[K]>;
   }
 
-  function isPropertyValid<K extends keyof ValidationSource<T>>(
-    key: K,
-    strict = false
-  ): boolean {
-    console.log('checkStrictValidation', checkStrictValidation(state[key].value))
-    return !strict ? checkStrictValidation(state[key].value) : state[key].valid;
+  function isPropertyValid<K extends keyof ValidationSource<T>>(key: K, strict = false): boolean {
+  // if strict is true, just return the state[key].valid.
+  if (strict) {
+    return state[key].valid;
+  } else {
+    // if strict is false, check if the value of state[key].value is of zero length.
+    const isZeroLength = checkStrictValidation(state[key].value);
+
+    // if so, then return true, else return the value of state[key].valid.
+    return isZeroLength ? true : state[key].valid;
   }
+}
 
   return [getProperty, update, isPropertyValid];
 }
