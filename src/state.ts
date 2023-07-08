@@ -55,8 +55,7 @@ export function makeReducer<T>(
     ValidationStrategies<T>
   ]
 ) {
-  const [, validationSequences, validationStrategies] =
-    validationStructure;
+  const [, validationSequences, validationStrategies] = validationStructure;
 
   return function reducer(
     state: ValidationData<T>,
@@ -70,24 +69,21 @@ export function makeReducer<T>(
         const value = action[keyOfT];
         const validationStrategy = validationStrategies[keyOfT];
         if (value !== undefined) {
-          let isValid = false;
+          let isValid = true;
           const validationSequence = validationSequences[keyOfT];
           let shouldUpdate = true;
           validationSequence.forEach((validate, index) => {
-            console.log('test',  validationStrategy[index])
             const blocking = validationStrategy[index]?.blocking ?? false;
             if (typeof validate === "function") {
               const res = validate(value);
-              if (res) {
-                isValid = true;
-              } else if(blocking) {
-                console.log("amBlocking");
-                shouldUpdate = false;
+              if (!res) {
+                isValid = false;
+                if (blocking) {
+                  shouldUpdate = false;
+                }
               }
             }
           });
-
-          console.log('shouldUpdate', shouldUpdate)
 
           if (shouldUpdate) {
             const keyResult: ValidationNode<typeof value> = {

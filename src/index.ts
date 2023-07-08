@@ -15,14 +15,10 @@ export function eventChange(update: (val: string) => void) {
 
 function checkStrictValidation(val: unknown) {
   if (typeof val === "string") {
-    console.log("stringLen", val.length);
-    console.log("string", val);
     return val.length === 0;
   } else if (typeof val === "number") {
-    console.log("number", val);
     return val === 0;
   } else if (Array.isArray(val)) {
-    console.log("array", val);
     return val.length === 0;
   }
   return false;

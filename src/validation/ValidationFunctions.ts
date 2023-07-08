@@ -74,8 +74,7 @@ function performsMatchValidation<T>(validationStrategy: ValidationStrategy<T>) {
       //convert to array based data set (string, arrays, or keys)
       const invert = validationStrategy.invert ?? false;
       const expression = validationStrategy.expression;
-      console.log("expression", expression)
-      console.log('val', val)
+      
       let result = false;
       if (isNumeric(val)) {
         const valAsNumber = val as number;
