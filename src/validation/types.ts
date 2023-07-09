@@ -16,7 +16,12 @@ export type ValidationData<Root> = {
   [P in keyof ValidationSource<Root>]: ValidationSource<Root>[P] extends Validator<infer T> ? ValidationNode<T> : never;
 };
 
-export type InferValidatorType<V> = V extends Validator<infer T> ? T : never;
+//export type InferValidatorType<V> = V extends Validator<infer T> ? T : never;
+
+//export type InferValidatorType<V> = V extends Validator<infer T> ? T : V;
+
+type ValidatorValue<V> = V extends Validator<infer T> ? T : V;
+export type InferValidatorType<V> = ValidatorValue<V extends Validator<any> ? V : never>;
 
 export type ValidationTechnique<Root> = {
   [P in keyof ValidationSource<Root>]: ((val: ValidationSource<Root>[P] extends Validator<infer T> ? T : never) => boolean)[];

@@ -7,7 +7,6 @@
 - **`optional`**: makes it so that a field is not required for a successful validation call.
 - **`noValidate`**: Does not automatically validate when state is changed
 - **`parse`**: Enables support for custom validators to parse the state.
-- **`validateProperty`**: allows you to pass the validation logic to another function
 - **`submit`**: checks to see if all validation states are passing, executes submit call.
 - **`messages`**: Display validation messages if a validation fails
 - **`createStateSlice`**: Create the data types needed for managing the reducer object created from a validation input
@@ -15,7 +14,7 @@
 
 
 	
-Many of these changes will be breaking changes, I am hoping to keep breakage to a minimum but I would rather break the library in its early days in pursuit of the right structure than later on in its life.
+Many of these changes will be breaking changes, I am hoping to keep breakage to a minimum but I would rather break the library in its early days in pursuit of the right structure than later on in its life. [Click here for more information on the long term goals of `react-validation-strategy`](https://github.com/codymurphyjones/react-validation-strategy/blob/main/aspirations.md)
 
 
 ### Table of Contents  
@@ -215,4 +214,5 @@ Behind the scenes, when you add a validation rule by calling a method like `leng
 
 Then, whenever the `Validator` needs to validate its field's value (e.g., when the `updateProperties` function is called), it goes through this array of `ValidationStrategy` functions, calling each one with the current field value. If any of the `ValidationStrategy` functions return `false`, the field is marked as invalid. Otherwise, it's marked as valid. This way, the `Validator` can easily manage multiple validation rules for a single field.
 
-Inspired by https://houseform.dev and https://www.react-hook-form.com/ and https://formik.org
+
+Inspired by https://houseform.dev and https://www.react-hook-form.com/ and https://formik.org and https://stitches.dev/docs/introduction and https://redux.js.org/ and https://react-spectrum.adobe.com/react-aria/

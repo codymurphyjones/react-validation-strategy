@@ -39,23 +39,27 @@ function checkStrictValidation(val: unknown) {
   return false;
 }
 
-export function useValidation<T>(defaultFormState: ValidationSource<T>): [
+type ValidationActions<T> = {
+  watch: <K extends keyof ValidationSource<T>>(
+    key: K
+  ) => InferValidatorType<ValidationSource<T>[K]>;
+  update: <K extends keyof ValidationSource<T>>(
+    key: K,
+    val: InferValidatorType<ValidationSource<T>[K]>
+  ) => void;
+  focus: <K extends keyof ValidationSource<T>>(key: K) => void;
+};
+
+export function useValidation<T>(
+  defaultFormState: ValidationSource<T>
+): [
   <K extends keyof ValidationSource<T>>(
     key: K,
     base?: React.CSSProperties,
     invalid?: React.CSSProperties
   ) => ValidationOutput<T, K>,
   <K extends keyof ValidationSource<T>>(key: K, strict?: boolean) => boolean,
-  {
-    watch: <K extends keyof ValidationSource<T>>(
-      key: K
-    ) => InferValidatorType<ValidationSource<T>[K]>;
-    update: <K extends keyof ValidationSource<T>>(
-      key: K,
-      val: InferValidatorType<ValidationSource<T>[K]>
-    ) => void;
-    focus: <K extends keyof ValidationSource<T>>(key: K) => void;
-  }
+  ValidationActions<T>
 ] {
   const validationStructure =
     ConvertDefaultStateToValidationStructure(defaultFormState);
@@ -73,32 +77,42 @@ export function useValidation<T>(defaultFormState: ValidationSource<T>): [
   function update<K extends keyof ValidationSource<T>>(
     key: K,
     val: InferValidatorType<ValidationSource<T>[K]>
-  ) {
+) {
     const action: Partial<ValidationUpdate<T>> = {};
-    action[key] = val;
+    action[key] = val as any;
     dispatch(action);
-  }
-
+}
 
   function watch<K extends keyof ValidationSource<T>>(key: K) {
     const valNode = state[key];
     const val = valNode.value;
     return val as InferValidatorType<ValidationSource<T>[K]>;
-}
+  }
 
   function isValid<K extends keyof ValidationSource<T>>(
-    key: K,
-    strict = false
+    key?: K | boolean,
+    strict: boolean = false
   ): boolean {
-    // if strict is true, just return the state[key].valid.
-    if (strict) {
-      return state[key].valid;
+    if (typeof key === "string") {
+      // Specific field validation
+      if (strict) {
+        return state[key].valid;
+      } else {
+        const isZeroLength = checkStrictValidation(state[key].value);
+        return isZeroLength ? true : state[key].valid;
+      }
+    } else if (typeof key === "boolean") {
+      // All fields validation, strictness determined by 'key'
+      return Object.keys(state).every((fieldKey) =>
+        isValid(fieldKey as K, key)
+      );
+    } else if (key === undefined) {
+      // All fields validation, strict
+      return Object.keys(state).every((fieldKey) =>
+        isValid(fieldKey as K, strict)
+      );
     } else {
-      // if strict is false, check if the value of state[key].value is of zero length.
-      const isZeroLength = checkStrictValidation(state[key].value);
-
-      // if so, then return true, else return the value of state[key].valid.
-      return isZeroLength ? true : state[key].valid;
+      throw new Error("Invalid argument passed to isValid function");
     }
   }
 
@@ -112,8 +126,11 @@ export function useValidation<T>(defaultFormState: ValidationSource<T>): [
     }
 
     keysSynced.push(key);
-    const isStateValid = isValid(key)
-    
+    const isStateValid = isValid(key);
+    //const fieldData = state[key].value;
+    const fieldData = state[key].value as ValidationSource<T>[K] extends Validator<infer U> ? U : never;
+
+
     return {
       onChange: onChange((val) =>
         update(key, val as InferValidatorType<ValidationSource<T>[K]>)
@@ -122,7 +139,7 @@ export function useValidation<T>(defaultFormState: ValidationSource<T>): [
         update(key, val as InferValidatorType<ValidationSource<T>[K]>)
       ),
       name: key,
-      value: watch(key),
+      value: fieldData,
       ref: refCollection[key],
       style: isStateValid ? base : { ...base, ...invalid },
     };
@@ -134,7 +151,7 @@ export function useValidation<T>(defaultFormState: ValidationSource<T>): [
     }
   }
 
-  const actions = {
+  const actions: ValidationActions<T> = {
     watch,
     update,
     focus,
