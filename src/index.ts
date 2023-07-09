@@ -50,17 +50,22 @@ type ValidationActions<T> = {
   focus: <K extends keyof ValidationSource<T>>(key: K) => void;
 };
 
-export function useValidation<T>(
-  defaultFormState: ValidationSource<T>
-): [
-  <K extends keyof ValidationSource<T>>(
+type ValidationHook<T> = {
+  sync: <K extends keyof ValidationSource<T>>(
     key: K,
     base?: React.CSSProperties,
     invalid?: React.CSSProperties
-  ) => ValidationOutput<T, K>,
-  <K extends keyof ValidationSource<T>>(key: K, strict?: boolean) => boolean,
-  ValidationActions<T>
-] {
+  ) => ValidationOutput<T, K>;
+  isValid: <K extends keyof ValidationSource<T>>(
+    key: K,
+    strict?: boolean
+  ) => boolean;
+  actions: ValidationActions<T>;
+};
+
+export function useValidation<T>(
+  defaultFormState: ValidationSource<T>
+): ValidationHook<T> {
   const validationStructure =
     ConvertDefaultStateToValidationStructure(defaultFormState);
   const keysSynced: (keyof ValidationSource<T>)[] = [];
@@ -70,18 +75,21 @@ export function useValidation<T>(
     validationStructure[0]
   ) as [ValidationData<T>, React.Dispatch<Partial<ValidationUpdate<T>>>];
 
-  const refCollection: {
-    [K in keyof ValidationSource<T>]: React.RefObject<HTMLInputElement>;
-  } = {} as any;
+  //const refCollection = React.useRef(new Map()).current;
+
+  const refCollection = new Map<
+    keyof ValidationSource<T>,
+    React.RefObject<HTMLInputElement>
+  >();
 
   function update<K extends keyof ValidationSource<T>>(
     key: K,
     val: InferValidatorType<ValidationSource<T>[K]>
-) {
+  ) {
     const action: Partial<ValidationUpdate<T>> = {};
-    action[key] = val as any;
+    action[key] = val as ValidationUpdate<T>[K];
     dispatch(action);
-}
+  }
 
   function watch<K extends keyof ValidationSource<T>>(key: K) {
     const valNode = state[key];
@@ -91,7 +99,7 @@ export function useValidation<T>(
 
   function isValid<K extends keyof ValidationSource<T>>(
     key?: K | boolean,
-    strict: boolean = false
+    strict = false
   ): boolean {
     if (typeof key === "string") {
       // Specific field validation
@@ -121,15 +129,14 @@ export function useValidation<T>(
     base?: React.CSSProperties,
     invalid?: React.CSSProperties
   ): ValidationOutput<T, K> {
-    if (!refCollection[key]) {
-      refCollection[key] = React.useRef<HTMLInputElement>(null);
+    if (!refCollection.has(key)) {
+      refCollection.set(key, React.createRef());
     }
-
     keysSynced.push(key);
     const isStateValid = isValid(key);
     //const fieldData = state[key].value;
-    const fieldData = state[key].value as ValidationSource<T>[K] extends Validator<infer U> ? U : never;
-
+    const fieldData = state[key]
+      .value as ValidationSource<T>[K] extends Validator<infer U> ? U : never;
 
     return {
       onChange: onChange((val) =>
@@ -140,14 +147,15 @@ export function useValidation<T>(
       ),
       name: key,
       value: fieldData,
-      ref: refCollection[key],
+      ref: refCollection.get(key),
       style: isStateValid ? base : { ...base, ...invalid },
     };
   }
 
   function focus<K extends keyof ValidationSource<T>>(key: K): void {
-    if (keysSynced.includes(key) && refCollection[key]?.current) {
-      refCollection[key]?.current?.focus();
+    const ref = refCollection.get(key);
+    if (keysSynced.includes(key) && ref?.current) {
+      ref.current.focus();
     }
   }
 
@@ -156,7 +164,7 @@ export function useValidation<T>(
     update,
     focus,
   };
-  return [sync, isValid, actions];
+  return { sync, isValid, actions };
 }
 
 export { Validation };
