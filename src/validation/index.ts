@@ -83,3 +83,36 @@ export class Validator<T = unknown> {
     return this;
   }
 }
+
+
+
+
+
+/*
+
+type ValidationType = string | [string];
+
+function createValidationType(type: string) {
+  switch (type) {
+    case 'string':
+      return z.string();
+    case 'number':
+      return z.number();
+    case 'boolean':
+      return z.boolean();
+    // Add other cases as needed.
+    default:
+      console.warn(`Unknown type: ${type}`);
+      return undefined;
+  }
+}
+
+function createValidation(type: ValidationType) {
+  if (Array.isArray(type)) {
+    const elementType = createValidationType(type[0]);
+    return elementType ? z.array(elementType) : undefined;
+  } else {
+    return createValidationType(type);
+  }
+}
+*/

@@ -2,11 +2,13 @@
 
 This document exists as a point of reference for the long term discussions around react-validation-strategy, this is a living document for expressing ideas and the views expressed here may not directly correlate to the current state of the ecosystem.
 
+> "The most reusable componetns are those with class names that are independent of the content"
+
 #### Planned Changes:
 - **`createStateSlice`**: Create the data types needed for managing the reducer object created from a validation input
 - **`validate`**: Configures the validation types for a state slice
+- **`validationMethod`**`: Enable more granular control from the sync function by providing a system describing when a field should be validated.-
 - **`optional`**: makes it so that a field is not required for a successful validation call.
-- **`noValidate`**: Does not automatically validate when state is changed
 - **`parse`**: Enables support for custom validators to parse the state.
 - **`submit`**: checks to see if all validation states are passing, executes submit call.
 - **`messages`**: Display validation messages if a validation fails
@@ -192,6 +194,12 @@ return (
   );
 }
 ```
+
+## The `validate` function
+With the introduction of the new state systen and its configurations for direct integrations with inputs we had to extract the validation step into its own statement as well.  Fortunately there are some very significant strengths from this move such as enabling custom validations to be state aware.
+
+With this change, we also hope to introduce utilities for first class zod support, state manipulation and update blocking.  Unfortunately, I know absolutely nothing about the obstacles that I'm going to face during that implementation and I cannot comment on the strategy that will be used.  The most important objective is first class zod support, state manipulation and update blocking may even need to be sacricied in favor of zod support.
+
 
 <!-- 
 ```ts
