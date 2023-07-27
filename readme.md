@@ -2,6 +2,11 @@
 
 **`react-validation-strategy`** is a library that provides a clean, modular, and reusable way to manage state and validation in your React applications. It simplifies form handling, abstracts away validation logic, and promotes separation of concerns, all while providing enhanced type safety with TypeScript.
 
+> react-validation-strategy@v0.0.53 is the last properly documented version as the changes roll out to migrate to the dynamic composition system
+>
+> We have provided a small walk through explaining the current usage pattern and will be updating progressively until the end product is fully determined.
+[canary version walkthrough](#canary-zversion-walkthrough)
+
 #### Planned Changes:
 
 - **`optional`**: makes it so that a field is not required for a successful validation call.
@@ -264,3 +269,53 @@ Behind the scenes, when you add a validation rule by calling a method like `leng
 Then, whenever the `Validator` needs to validate its field's value (e.g., when the `updateProperties` function is called), it goes through this array of `ValidationStrategy` functions, calling each one with the current field value. If any of the `ValidationStrategy` functions return `false`, the field is marked as invalid. Otherwise, it's marked as valid. This way, the `Validator` can easily manage multiple validation rules for a single field.
 
 Inspired by https://houseform.dev and https://www.react-hook-form.com/ and https://formik.org and https://stitches.dev/docs/introduction and https://redux.js.org/ and https://react-spectrum.adobe.com/react-aria/
+
+
+#### canary version walkthrough
+
+    import { useValidation, Validation } from  "react-validation-strategy";
+ 
+    // Define regex if needed
+    const  reg  = /%|#|\$|@|!/;
+    // Define a state slice and validators with the validate fucking and the Validation
+    const  UserSignIn  =  Validation.createSlice({
+        username:  "",
+        password:  "",
+    }).validate({
+        username:  Validation.new("").length(5, 10).not(),
+        password:  Validation.new("").match(reg),
+    });
+    // Define reusable validation objects
+    const  nameFieldValidation  =  Validation.new("")
+        .length(2, 20)
+        .match(/^[A-z]*$/)
+        .blocking();
+    
+    // Define Multiple Slices to differentiate purpose and utility
+    const  UserPreferences  =  Validation.createSlice({
+        displayName:  "",
+        email:  "",
+    }).validate({
+        displayName:  nameFieldValidation.includes("@"),
+        email:  Validation.new("").length(2, 200).includes("@"),
+    });
+    
+    // validate is only required if you need field validation, otherwise you can leave blank
+    const  UserRegistrationInfo  =  Validation.createSlice({
+        firstName:  "",
+        lastName:  "",
+        confirmPassword:  "",
+    });
+
+    // Merge Multiple Slices into one form 
+    // Define validation on the new slice 
+    // compile before plugging into hook
+    const  UserSignUp  =  UserSignIn.mergeStates(UserPreferences, UserRegistrationInfo)
+    .validate({
+        firstName:  nameFieldValidation,
+        lastName:  nameFieldValidation,
+        confirmPassword:  Validation.new("").custom((val) =>  val.length  >  5),
+    }).compile();
+    
+    // useValidation still operates how it does in the documentation
+    const { sync, isValid, actions } =  useValidation(UserSignUp);

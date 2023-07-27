@@ -1,8 +1,5 @@
-import type { Validator } from ".";
-
 type ValidationMethods = "length" | "includes" | "match" | "custom";
 type ValidationMethod<Key> = Extract<ValidationMethods, Key>;
-
 
 export type ValidationStrategy<T = string> =
   | LengthValidation
@@ -24,42 +21,49 @@ export type LengthValidation =
       max: number;
       blocking?: boolean;
       invert?: boolean;
-};
+    };
 
-export function isLengthValidation<T>(strategy: ValidationStrategy<T>): strategy is LengthValidation {
-        return strategy.method === "length"
+export function isLengthValidation<T>(
+  strategy: ValidationStrategy<T>
+): strategy is LengthValidation {
+  return strategy.method === "length";
 }
 
 export type IncludesValidation = {
-  method: ValidationMethod<"includes">; 
+  method: ValidationMethod<"includes">;
   text: string;
   blocking?: boolean;
   invert?: boolean;
 };
 
-export function isIncludesValidation<T>(strategy: ValidationStrategy<T>): strategy is IncludesValidation {
-  return strategy.method === "includes" 
+export function isIncludesValidation<T>(
+  strategy: ValidationStrategy<T>
+): strategy is IncludesValidation {
+  return strategy.method === "includes";
 }
 
-
 export type CustomValidation<T = string> = {
-  method: ValidationMethod<"custom">; 
+  method: ValidationMethod<"custom">;
   custom: (val: T) => boolean;
   blocking?: boolean;
   invert?: boolean;
 };
 
-export function isCustomValidation<T>(strategy: ValidationStrategy<T>): strategy is CustomValidation<T> {
-  return "custom" in strategy && strategy.method === "custom" 
+export function isCustomValidation<T>(
+  strategy: ValidationStrategy<T>
+): strategy is CustomValidation<T> {
+  return "custom" in strategy && strategy.method === "custom";
 }
 
 export type MatchValidation = {
-  method: ValidationMethod<"match">; 
+  method: ValidationMethod<"match">;
   expression: RegExp;
   blocking?: boolean;
   invert?: boolean;
 };
 
-export function isMatchValidation<T>(strategy: ValidationStrategy<T>): strategy is MatchValidation {
-  return "expression" in strategy && strategy.method === "match" 
+export function isMatchValidation<T>(
+  strategy: ValidationStrategy<T>
+): strategy is MatchValidation {
+  return "expression" in strategy && strategy.method === "match";
 }

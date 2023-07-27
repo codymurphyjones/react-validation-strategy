@@ -1,5 +1,5 @@
 import { useReducer } from "react";
-import { Validation, Validator } from "./validation";
+import { Validation, type Validator } from "./validation";
 import { ConvertDefaultStateToValidationStructure, makeReducer } from "./state";
 import type {
   InferValidatorType,
