@@ -5,7 +5,7 @@
 > react-validation-strategy@v0.0.53 is the last properly documented version as the changes roll out to migrate to the dynamic composition system
 >
 > We have provided a small walk through explaining the current usage pattern and will be updating progressively until the end product is fully determined.
-[canary version walkthrough](#canary-zversion-walkthrough)
+[canary version walkthrough](#canary-version-walkthrough)
 
 #### Planned Changes:
 
